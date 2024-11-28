@@ -188,8 +188,10 @@ app.get('/api/publicaciones/usuario/:id', async (req, res) => {
 });
 
 // Ruta para buscar publicaciones con filtros
-app.get('/api/publicaciones/buscar', async (req, res) => {
+// Ruta para buscar publicaciones con filtros para el usuario logueado
+app.get('/api/publicaciones/buscar/:userId', async (req, res) => {
     try {
+        const { userId } = req.params;
         const { termino, fechaInicio, fechaFin, categoria } = req.query;
         const pool = await poolPromise;
         let query = `
@@ -197,7 +199,7 @@ app.get('/api/publicaciones/buscar', async (req, res) => {
             FROM Publicacion p
             JOIN Publicacion_Categoria pc ON p.Id_Publicacion = pc.Id_Publicacion
             JOIN Categoria c ON pc.Id_Categoria = c.Id_Categoria
-            WHERE p.Contenido LIKE '%' + @termino + '%'
+            WHERE p.Id_Usuario = @Id_Usuario AND p.Contenido LIKE '%' + @termino + '%'
         `;
         if (fechaInicio) {
             query += ' AND p.FechaPublicacion >= @fechaInicio';
@@ -209,6 +211,7 @@ app.get('/api/publicaciones/buscar', async (req, res) => {
             query += ' AND c.NombreCategoria = @categoria';
         }
         const result = await pool.request()
+            .input('Id_Usuario', sql.Int, userId)
             .input('termino', sql.NVarChar, termino || '')
             .input('fechaInicio', sql.Date, fechaInicio || null)
             .input('fechaFin', sql.Date, fechaFin || null)
