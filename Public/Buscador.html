@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador / OhYeah!</title>
+    <link rel="stylesheet" href="stylebuscador.css">
+</head>
+<body class="buscador-page">
+    <nav class="navbar">
+        <ul>
+            <li><a href="pagina_destino.html">Inicio</a></li>
+            <li><a href="Buscador.html">Buscar</a></li>
+            <li><a href="Perfil.html">Perfil</a></li>
+        </ul>
+    </nav>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Buscar publicaciones..." />
+        <button id="searchButton" class="btn btn-search">Buscar</button>
+        <button id="filterButton" class="btn btn-filter">Filtro</button>
+    </div>
+
+    <div id="filterOptions" style="display: none;">
+        <label for="fechaInicio">Fecha Inicio:</label>
+        <input type="date" id="fechaInicio">
+        <label for="fechaFin">Fecha Fin:</label>
+        <input type="date" id="fechaFin">
+        <label for="categoryFilter">Categoría:</label>
+        <select id="categoryFilter">
+            <option value="">Todas las categorías</option>
+            <option value="Noticias">Noticias</option>
+            <option value="Eventos">Eventos</option>
+            <option value="Anuncios">Anuncios</option>
+            <option value="Otros">Otros</option>
+        </select>
+    </div>
+
+    <div class="resultados-container" id="resultados"></div>
+    <div class="paginacion" id="paginacion"></div>
+
+    <footer class="footer">
+        <p>&copy; Pagina Creada Por: German Carrizales Villarreal y Daniel Giovanni Carrillo Briones</p>
+    </footer>
+
+    <script>
+        // Verificar si la sesión está activa
+        const sessionActive = localStorage.getItem('sessionActive');
+        const activeUser = JSON.parse(localStorage.getItem('activeUser'));
+
+        if (sessionActive !== 'true' || !activeUser) {
+            window.location.href = 'InicioSesion.html';
+        }
+
+        const resultadosPorPagina = 10;
+        let paginaActual = 1;
+
+        async function fetchPublicaciones(termino, fechaInicio, fechaFin, categoria) {
+            const queryParams = new URLSearchParams({
+                termino: termino || '',
+                fechaInicio: fechaInicio || '',
+                fechaFin: fechaFin || '',
+                categoria: categoria || ''
+            });
+            const response = await fetch(`http://localhost:3000/api/publicaciones/buscar?${queryParams.toString()}`);
+            const data = await response.json();
+            return data;
+        }
+
+        async function mostrarResultados(pagina) {
+            const terminoBusqueda = document.getElementById('searchInput').value.toLowerCase();
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            const fechaFin = document.getElementById('fechaFin').value;
+            const categoria = document.getElementById('categoryFilter').value;
+
+            const publicaciones = await fetchPublicaciones(terminoBusqueda, fechaInicio, fechaFin, categoria);
+            const inicio = (pagina - 1) * resultadosPorPagina;
+            const fin = inicio + resultadosPorPagina;
+            const publicacionesPagina = publicaciones.slice(inicio, fin);
+
+            const resultadosDiv = document.getElementById('resultados');
+            resultadosDiv.innerHTML = '';
+
+            publicacionesPagina.forEach(pub => {
+                const pubDiv = document.createElement('div');
+                pubDiv.classList.add('publicacion');
+                pubDiv.innerHTML = `<h3>${pub.Titulo}</h3><p>${pub.Contenido}</p><p>Categoría: ${pub.NombreCategoria}</p>`;
+                resultadosDiv.appendChild(pubDiv);
+            });
+
+            mostrarPaginacion(publicaciones.length);
+        }
+
+        function mostrarPaginacion(totalPublicaciones) {
+            const totalPaginas = Math.ceil(totalPublicaciones / resultadosPorPagina);
+            const paginacionDiv = document.getElementById('paginacion');
+            paginacionDiv.innerHTML = '';
+
+            for (let i = 1; i <= totalPaginas; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.addEventListener('click', function () {
+                    paginaActual = i;
+                    mostrarResultados(i);
+                });
+
+                if (i === paginaActual) {
+                    btn.style.fontWeight = 'bold';
+                }
+
+                paginacionDiv.appendChild(btn);
+            }
+        }
+
+        document.getElementById('filterButton').addEventListener('click', function () {
+            const filterOptions = document.getElementById('filterOptions');
+            filterOptions.style.display = filterOptions.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.getElementById('searchButton').addEventListener('click', function () {
+            mostrarResultados(1);
+        });
+
+        mostrarResultados(paginaActual);
+    </script>
+</body>
+</html>

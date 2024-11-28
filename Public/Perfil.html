@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil / OhYeah!</title>
+    <link rel="stylesheet" href="styleperfil.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="perfil-page">
+    <header>
+        <nav class="navbar">
+            <ul>
+                <li><a href="pagina_destino.html">Inicio</a></li>
+                <li><a href="Buscador.html">Buscar</a></li>
+                <li><a href="Perfil.html">Perfil</a></li>
+            </ul>
+        </nav>
+        <div id="profileSection">
+            <h2 id="username"></h2>
+            <img id="profileImage" alt="Imagen de Perfil" style="max-width: 150px; border-radius: 50%;">
+            <button id="editProfile" class="btn btn-primary">Editar Perfil</button>
+            <button id="saveProfile" class="btn btn-primary" style="display: none;">Guardar Cambios</button>
+            <button id="logoutButton" class="btn btn-primary">Salir de Sesión</button>
+        </div>
+    </header>
+    <main>
+        <section class="user-info">
+            <h3>Información del Usuario</h3>
+            <p><strong>Nombres:</strong> <input type="text" id="nombres" disabled></p>
+            <p><strong>Apellidos:</strong> <input type="text" id="apellidos" disabled></p>
+            <p><strong>Fecha de Nacimiento:</strong> <input type="date" id="fechaNacimiento" disabled></p>
+            <p><strong>Correo Electrónico:</strong> <input type="email" id="correo" disabled></p>
+            <p><strong>Fecha de Creación de la Cuenta:</strong> <span id="fechaCreacion"></span></p>
+        </section>
+
+        <section class="publicaciones">
+            <h3>Última Publicación:</h3>
+            <div id="ultimaPublicacion"></div>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>&copy; Pagina Creada Por: German Carrizales Villarreal y Daniel Giovanni Carrillo Briones</p>
+    </footer>
+
+    <script>
+        // Verificar si la sesión está activa
+        const sessionActive = localStorage.getItem('sessionActive');
+        const activeUser = JSON.parse(localStorage.getItem('activeUser'));
+
+        if (sessionActive !== 'true' || !activeUser) {
+            window.location.href = 'InicioSesion.html';
+        }
+
+        if (activeUser) {
+            document.getElementById('username').textContent = activeUser.Username;
+            document.getElementById('profileImage').src = activeUser.Foto ? `data:image/png;base64,${activeUser.Foto}` : 'default.png';
+            document.getElementById('nombres').value = activeUser.Nombres || '';
+            document.getElementById('apellidos').value = activeUser.Apellidos || '';
+            document.getElementById('fechaNacimiento').value = activeUser.Nacimiento || '';
+            document.getElementById('correo').value = activeUser.Correo || '';
+            document.getElementById('fechaCreacion').textContent = activeUser.Fecha_Creacion || 'N/A';
+        }
+
+        document.getElementById('logoutButton').addEventListener('click', function () {
+            const confirmation = confirm('¿Seguro que deseas salir de la sesión?');
+            if (confirmation) {
+                localStorage.setItem('sessionActive', 'false');
+                localStorage.removeItem('activeUser');
+                window.location.href = 'InicioSesion.html';
+            }
+        });
+
+        document.getElementById('editProfile').addEventListener('click', function () {
+            document.getElementById('nombres').disabled = false;
+            document.getElementById('apellidos').disabled = false;
+            document.getElementById('fechaNacimiento').disabled = false;
+            document.getElementById('correo').disabled = false;
+            document.getElementById('editProfile').style.display = 'none';
+            document.getElementById('saveProfile').style.display = 'inline-block';
+        });
+
+        document.getElementById('saveProfile').addEventListener('click', async function () {
+    try {
+        activeUser.Nombres = document.getElementById('nombres').value;
+        activeUser.Apellidos = document.getElementById('apellidos').value;
+        activeUser.Nacimiento = document.getElementById('fechaNacimiento').value;
+        activeUser.Correo = document.getElementById('correo').value;
+
+        const response = await fetch(`http://localhost:3000/api/usuarios/${activeUser.Id_Usuario}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(activeUser)
+        });
+
+        console.log('Respuesta del servidor:', response);
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Datos actualizados:', result);
+            localStorage.setItem('activeUser', JSON.stringify(activeUser));
+            document.getElementById('nombres').disabled = true;
+            document.getElementById('apellidos').disabled = true;
+            document.getElementById('fechaNacimiento').disabled = true;
+            document.getElementById('correo').disabled = true;
+            document.getElementById('editProfile').style.display = 'inline-block';
+            document.getElementById('saveProfile').style.display = 'none';
+        } else {
+            const error = await response.text();
+            console.error('Error en la respuesta:', error);
+            alert('Error al guardar los cambios.');
+        }
+    } catch (error) {
+        console.error('Error al guardar los cambios:', error);
+        alert('Error al guardar los cambios.');
+    }
+});
+
+
+        // Mostrar la última publicación
+        async function fetchUserPosts() {
+            const response = await fetch(`http://localhost:3000/api/publicaciones/usuario/${activeUser.Id_Usuario}`);
+            const data = await response.json();
+            return data;
+        }
+
+        async function renderLastPost() {
+            const userPosts = await fetchUserPosts();
+            const ultimaPublicacion = userPosts.length > 0 ? userPosts[0] : null;
+
+            if (ultimaPublicacion) {
+                document.getElementById('ultimaPublicacion').innerHTML = `<p>${ultimaPublicacion.Contenido}</p><small>Publicado por: ${activeUser.Username}</small>`;
+            } else {
+                document.getElementById('ultimaPublicacion').innerHTML = '<p>Aún no tienes publicaciones.</p>';
+            }
+        }
+
+        renderLastPost();
+    </script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+.search-container {
+    padding: 20px;
+    text-align: center;
+}
+
+.search-container input[type="text"] {
+    width: 60%;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.search-container button {
+    padding: 10px 15px;
+    font-size: 16px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.resultados-container {
+    padding: 20px;
+}
+
+.publicacion {
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.publicacion h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.paginacion {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.paginacion button {
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.advanced-search-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.footer {
+    background-color: purple;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+
+.buscador-page {
+    margin: 0;
+    padding: 0;
+    font-family: 'Trebuchet MS', Arial, sans-serif;
+    background: linear-gradient(150deg, #ff6a00, purple);
+    height: 100vh;
+}
+
+.buscador-page .navbar {
+    background-color: #6C3483;
+    padding: 10px 20px;
+    text-align: center;
+}
+
+.buscador-page .navbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.buscador-page .navbar ul li {
+    margin: 0 15px;
+}
+
+.buscador-page .navbar ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.buscador-page .navbar ul li a:hover {
+    color: #ff6a00;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-search {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-search:hover {
+    background-color: #0056b3;
+}
+
+.btn-filter {
+    background-color: #007bff;
+    color: white;;
+}
+
+.btn-filter:hover {
+    background-color: #0056b3;
+}

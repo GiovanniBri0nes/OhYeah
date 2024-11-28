@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro / OhYeah!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h2>Regístrate</h2>
+    </header>
+    <main>
+        <form id="registerForm" method="post">
+            <div class="input-group">
+                <label for="nombres">Nombre(s)</label>
+                <input type="text" id="nombres" name="nombres" required>
+            </div>
+            <div class="input-group">
+                <label for="apellidos">Apellidos</label>
+                <input type="text" id="apellidos" name="apellidos" required>
+            </div>
+            <div class="input-group">
+                <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+            </div>
+            <div class="input-group">
+                <label for="correo">Correo Electrónico</label>
+                <input type="email" id="correo" name="correo" required>
+            </div>
+            <div class="input-group">
+                <label for="imagenPerfil">Imagen de Perfil</label>
+                <input type="file" id="imagenPerfil" name="imagenPerfil" accept="image/*" required>
+            </div>
+            <div class="input-group">
+                <label for="username">Nombre de Usuario</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="input-group">
+                <label for="fechaCreacion">Fecha de Creación</label>
+                <input type="text" id="fechaCreacion" name="fechaCreacion" readonly>
+            </div>
+            <input type="submit" value="Registrarse">
+        </form>
+    </main>
+
+    <script>
+        document.getElementById('fechaCreacion').value = new Date().toLocaleDateString();
+        document.getElementById('registerForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const nombres = document.getElementById('nombres').value;
+            const apellidos = document.getElementById('apellidos').value;
+            const fechaNacimiento = document.getElementById('fechaNacimiento').value;
+            const correo = document.getElementById('correo').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const fechaCreacion = document.getElementById('fechaCreacion').value;
+
+            const imageFile = document.getElementById('imagenPerfil').files[0];
+            const reader = new FileReader();
+            
+            reader.onloadend = async function () {
+                const imageBase64 = reader.result;
+
+                const response = await fetch('http://localhost:3000/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nombres, apellidos, fechaNacimiento, correo, username, password, image: imageBase64 })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Registro exitoso. Ahora puedes iniciar sesión.');
+                    window.location.href = 'InicioSesion.html';
+                } else {
+                    alert('Error al registrar el usuario: ' + data.message);
+                }
+            };
+
+            if (imageFile) {
+                reader.readAsDataURL(imageFile);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver y Eliminar Usuarios</title>
+</head>
+<body>
+    <h1>Usuarios Registrados</h1>
+    <ul id="userList"></ul>
+
+    <script>
+        function loadUsers() {
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            const userList = document.getElementById('userList');
+            userList.innerHTML = ''; 
+
+            users.forEach((user, index) => {
+                const li = document.createElement('li');
+                li.textContent = `Nombre: ${user.nombres} ${user.apellidos}, Usuario: ${user.username},
+                                      Correo: ${user.correo}, Fecha de Registro: ${user.fechaCreacion}`;
+
+                const img = document.createElement('img');
+                img.src = user.image || 'default.png';
+                img.alt = 'Imagen de Perfil';
+                img.style.maxWidth = '50px';
+                img.style.borderRadius = '50%';
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Eliminar';
+                deleteButton.style.marginLeft = '10px';
+                deleteButton.addEventListener('click', function () {
+                    deleteUser(index);
+                });
+
+                li.appendChild(img);
+                li.appendChild(deleteButton);
+                userList.appendChild(li);
+            });
+        }
+
+        function deleteUser(index) {
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            users.splice(index, 1);
+            localStorage.setItem('users', JSON.stringify(users));
+            loadUsers(); 
+        }
+
+        loadUsers();
+    </script>
+</body>
+</html>

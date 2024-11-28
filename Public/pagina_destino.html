@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio / OhYeah!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bienvenida-page">
+    <header>
+        <nav class="navbar">
+            <ul>
+                <li><a href="pagina_destino.html">Inicio</a></li>
+                <li><a href="Buscador.html">Buscar</a></li>
+                <li><a href="Perfil.html">Perfil</a></li>
+            </ul>
+        </nav>
+        <div id="userMessage"></div>
+        <div class="profile-container">
+            <img id="profileImage"  alt="Imagen de Perfil" style="max-width: 100px; border-radius: 50%;">
+            <span id="username"></span>
+        </div>
+    </header>
+    <main>
+        <section class="publicaciones">
+            <h3>Publicaciones:</h3>
+            <form id="postForm">
+                <input type="text" id="postTitle" placeholder="Título de la publicación" required>
+                <textarea id="postContent" placeholder="Escribe tu publicación aquí..." required></textarea>
+                <input type="file" id="postFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx">
+                <select id="postCategory" required>
+                    <option value="" disabled selected>Selecciona una categoría</option>
+                    <option value="1">Ventas</option>
+                    <option value="2">Noticias</option>
+                    <option value="3">Deportes</option>
+                    <option value="4">Videojuegos</option>
+                    <option value="5">Otros</option>
+                </select>
+                <button type="submit" class="Publicar">Publicar</button>
+            </form>
+            <div id="postsContainer"></div>
+            <div id="paginationControls" class="pagination-controls"></div>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>&copy; Pagina Creada Por: German Carrizales Villarreal y Daniel Giovanni Carrillo Briones</p>
+    </footer>
+
+    <script>
+        // Verificar si la sesión está activa
+        const sessionActive = localStorage.getItem('sessionActive');
+        const activeUser = JSON.parse(localStorage.getItem('activeUser'));
+
+        if (sessionActive !== 'true' || !activeUser) {
+            window.location.href = 'InicioSesion.html';
+        }
+
+        const userMessage = document.getElementById('userMessage');
+        const profileImage = document.getElementById('profileImage');
+        const username = document.getElementById('username');
+
+        if (activeUser) {
+            userMessage.innerHTML = `Bienvenido, <span>${activeUser.Username}</span>!`;
+            profileImage.src = activeUser.Foto ? `data:image/jpg;base64,${activeUser.Foto}` : 'default.png';
+            username.textContent = activeUser.Username;
+            profileImage.style.display = 'block';
+        } else {
+            userMessage.innerHTML = 'Usuario no encontrado';
+        }
+
+        const postForm = document.getElementById('postForm');
+        const postTitle = document.getElementById('postTitle');
+        const postContent = document.getElementById('postContent');
+        const postFile = document.getElementById('postFile');
+        const postCategory = document.getElementById('postCategory');
+        const postsContainer = document.getElementById('postsContainer');
+        const paginationControls = document.getElementById('paginationControls');
+
+        let posts = [];
+        const postsPerPage = 10;
+        let currentPage = 1;
+
+        async function fetchPosts() {
+            const response = await fetch('http://localhost:3000/api/publicaciones');
+            const data = await response.json();
+            return data;
+        }
+
+        async function renderPosts() {
+            posts = await fetchPosts();
+            postsContainer.innerHTML = '';
+            const start = (currentPage - 1) * postsPerPage;
+            const end = start + postsPerPage;
+            const paginatedPosts = posts.slice(start, end);
+
+            paginatedPosts.forEach((post, index) => {
+                const postElement = document.createElement('div');
+                postElement.className = 'post';
+                postElement.id = `post_${start + index}`;
+                postElement.innerHTML = `
+                    <h4>${post.Titulo}</h4>
+                    <p>${post.Contenido}</p>
+                    <small>Publicado por: ${post.Id_Usuario}</small>
+                    <small>Categoría: ${post.NombreCategoria}</small>
+                    ${post.file ? `<a href="${post.file}" target="_blank">Ver archivo adjunto</a>` : ''}
+                    <button onclick="editPost(${start + index})">Editar</button>
+                    <button onclick="deletePost(${start + index})">Borrar</button>
+                `;
+                postsContainer.appendChild(postElement);
+            });
+
+            renderPaginationControls();
+        }
+
+        function renderPaginationControls() {
+            paginationControls.innerHTML = '';
+            const totalPages = Math.ceil(posts.length / postsPerPage);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.onclick = () => {
+                    currentPage = i;
+                    renderPosts();
+                };
+                if (i === currentPage) {
+                    pageButton.style.fontWeight = 'bold';
+                }
+                paginationControls.appendChild(pageButton);
+            }
+        }
+
+        async function editPost(index) {
+            const post = posts[index];
+            const postElement = document.getElementById(`post_${index}`);
+            const originalContent = post.Contenido;
+            postElement.innerHTML = `
+                <textarea id="editContent_${index}">${post.Contenido}</textarea>
+                <button onclick="saveEdit(${index})">Guardar</button>
+                <button onclick="cancelEdit(${index}, '${originalContent}')">Cancelar</button>
+            `;
+        }
+
+        function cancelEdit(index, originalContent) {
+            const postElement = document.getElementById(`post_${index}`);
+            postElement.innerHTML = `
+                <h4>${posts[index].Titulo}</h4>
+                <p>${originalContent}</p>
+                <small>Publicado por: ${posts[index].Id_Usuario}</small>
+                <small>Categoría: ${posts[index].NombreCategoria}</small>
+                ${posts[index].file ? `<a href="${posts[index].file}" target="_blank">Ver archivo adjunto</a>` : ''}
+                <button onclick="editPost(${index})">Editar</button>
+                <button onclick="deletePost(${index})">Borrar</button>
+            `;
+        }
+
+        async function saveEdit(index) {
+            const newContent = document.getElementById(`editContent_${index}`).value;
+            const post = posts[index];
+            post.Contenido = newContent;
+
+            const response = await fetch(`http://localhost:3000/api/publicaciones/${post.Id_Publicacion}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(post)
+            });
+
+            if (response.ok) {
+                posts[index].Contenido = newContent;
+                renderPosts();
+            } else {
+                alert('Error al guardar la publicación.');
+            }
+        }
+
+        async function deletePost(index) {
+            const post = posts[index];
+
+            const response = await fetch(`http://localhost:3000/api/publicaciones/${post.Id_Publicacion}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                renderPosts();
+            } else {
+                alert('Error al borrar la publicación.');
+            }
+        }
+
+        postForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            if (activeUser) {
+                const newPost = {
+                    Id_Usuario: activeUser.Id_Usuario,
+                    Titulo: postTitle.value,
+                    Contenido: postContent.value,
+                    file: postFile.files[0] ? URL.createObjectURL(postFile.files[0]) : null,
+                    Id_Categoria: postCategory.value
+                };
+
+                const response = await fetch('http://localhost:3000/api/publicaciones', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newPost)
+                });
+
+                if (response.ok) {
+                    postTitle.value = '';
+                    postContent.value = '';
+                    postFile.value = '';
+                    postCategory.value = '';
+                    renderPosts();
+                } else {
+                    alert('Error al publicar.');
+                }
+            } else {
+                alert('No se puede publicar sin un usuario válido.');
+            }
+        });
+
+        renderPosts();
+    </script>
+</body>
+</html>
