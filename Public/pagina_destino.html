@@ -82,7 +82,7 @@
         let currentPage = 1;
 
         async function fetchPosts() {
-            const response = await fetch('/api/publicaciones');
+            const response = await fetch(`/api/publicaciones/${activeUser.Id_Usuario}`);
             const data = await response.json();
             return data;
         }
