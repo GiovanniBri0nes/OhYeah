@@ -62,7 +62,7 @@
                 fechaFin: fechaFin || '',
                 categoria: categoria || ''
             });
-            const response = await fetch(`http://localhost:3000/api/publicaciones/buscar?${queryParams.toString()}`);
+            const response = await fetch(`/api/publicaciones/buscar?${queryParams.toString()}`);
             const data = await response.json();
             return data;
         }

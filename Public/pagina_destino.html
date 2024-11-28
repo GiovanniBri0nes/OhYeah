@@ -82,7 +82,7 @@
         let currentPage = 1;
 
         async function fetchPosts() {
-            const response = await fetch('http://localhost:3000/api/publicaciones');
+            const response = await fetch('/api/publicaciones');
             const data = await response.json();
             return data;
         }
@@ -160,7 +160,7 @@
             const post = posts[index];
             post.Contenido = newContent;
 
-            const response = await fetch(`http://localhost:3000/api/publicaciones/${post.Id_Publicacion}`, {
+            const response = await fetch(`/api/publicaciones/${post.Id_Publicacion}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -179,7 +179,7 @@
         async function deletePost(index) {
             const post = posts[index];
 
-            const response = await fetch(`http://localhost:3000/api/publicaciones/${post.Id_Publicacion}`, {
+            const response = await fetch(`/api/publicaciones/${post.Id_Publicacion}`, {
                 method: 'DELETE'
             });
 
@@ -201,7 +201,7 @@
                     Id_Categoria: postCategory.value
                 };
 
-                const response = await fetch('http://localhost:3000/api/publicaciones', {
+                const response = await fetch('/api/publicaciones', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

@@ -12,20 +12,15 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'Public', 'InicioSesion.html'));
 });
 app.use(bodyParser.json({ limit: '50mb' })); // Aumentar el límite de tamaño de la solicitud si es necesario
-app.use(cors({
-    origin: 'https://ohyeah-4nlk.onrender.com', // Cambia esto a la URL de tu frontend en Render
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type']
-}));
-
+app.use(cors()); // 
 // Ruta para manejar el inicio de sesión
 app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         const pool = await poolPromise;
         const result = await pool.request()
-            .input('Username', sql.NVarChar, username)
-            .input('Contraseña', sql.NVarChar, password)
+            .input('Username', sql.VarChar, username)
+            .input('Contraseña', sql.VarChar, password)
             .query('SELECT * FROM Usuario WHERE Username = @Username AND Contraseña = @Contraseña');
 
         if (result.recordset.length > 0) {
@@ -49,13 +44,13 @@ app.post('/api/register', async (req, res) => {
 
         const pool = await poolPromise;
         const result = await pool.request()
-            .input('Nombres', sql.NVarChar, nombres)
-            .input('Apellidos', sql.NVarChar, apellidos)
+            .input('Nombres', sql.VarChar, nombres)
+            .input('Apellidos', sql.VarChar, apellidos)
             .input('Nacimiento', sql.Date, fechaNacimiento)
-            .input('Correo', sql.NVarChar, correo)
+            .input('Correo', sql.VarChar, correo)
             .input('Foto', sql.VarBinary, imageBuffer)
-            .input('Username', sql.NVarChar, username)
-            .input('Contraseña', sql.NVarChar, password)
+            .input('Username', sql.VarChar, username)
+            .input('Contraseña', sql.VarChar, password)
             .query('INSERT INTO Usuario (Nombres, Apellidos, Nacimiento, Correo, Foto, Username, Contraseña, Fecha_Creacion) VALUES (@Nombres, @Apellidos, @Nacimiento, @Correo, @Foto, @Username, @Contraseña, GETDATE()); SELECT SCOPE_IDENTITY() AS Id_Usuario');
 
         const Id_Usuario = result.recordset[0].Id_Usuario;

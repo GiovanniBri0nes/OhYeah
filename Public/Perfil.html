@@ -88,7 +88,7 @@
         activeUser.Nacimiento = document.getElementById('fechaNacimiento').value;
         activeUser.Correo = document.getElementById('correo').value;
 
-        const response = await fetch(`http://localhost:3000/api/usuarios/${activeUser.Id_Usuario}`, {
+        const response = await fetch(`/api/usuarios/${activeUser.Id_Usuario}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -122,7 +122,7 @@
 
         // Mostrar la última publicación
         async function fetchUserPosts() {
-            const response = await fetch(`http://localhost:3000/api/publicaciones/usuario/${activeUser.Id_Usuario}`);
+            const response = await fetch(`/api/publicaciones/usuario/${activeUser.Id_Usuario}`);
             const data = await response.json();
             return data;
         }
