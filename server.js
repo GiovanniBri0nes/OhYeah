@@ -61,15 +61,19 @@ app.post('/api/register', async (req, res) => {
 });
 
 // Ruta para obtener todas las publicaciones
-app.get('/api/publicaciones', async (req, res) => {
+app.get('/api/publicaciones/:userId', async (req, res) => {
     try {
+        const { userId } = req.params;
         const pool = await poolPromise;
-        const result = await pool.request().query(`
-            SELECT p.*, c.NombreCategoria 
-            FROM Publicacion p
-            JOIN Publicacion_Categoria pc ON p.Id_Publicacion = pc.Id_Publicacion
-            JOIN Categoria c ON pc.Id_Categoria = c.Id_Categoria
-        `);
+        const result = await pool.request()
+            .input('Id_Usuario', sql.Int, userId)
+            .query(`
+                SELECT p.*, c.NombreCategoria 
+                FROM Publicacion p
+                JOIN Publicacion_Categoria pc ON p.Id_Publicacion = pc.Id_Publicacion
+                JOIN Categoria c ON pc.Id_Categoria = c.Id_Categoria
+                WHERE p.Id_Usuario = @Id_Usuario
+            `);
         res.json(result.recordset);
     } catch (err) {
         res.status(500).send(err.message);
