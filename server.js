@@ -10,12 +10,16 @@ const port = 3000;
 app.use(express.static(path.join(__dirname, 'Public')));
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'Public', 'InicioSesion.html'));
-  });
+});
 app.use(bodyParser.json({ limit: '50mb' })); // Aumentar el límite de tamaño de la solicitud si es necesario
-app.use(cors());
+app.use(cors({
+    origin: 'https://ohyeah-4nlk.onrender.com', // Cambia esto a la URL de tu frontend en Render
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type']
+}));
 
 // Ruta para manejar el inicio de sesión
-app.post('https://ohyeah-4nlk.onrender.com/api/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         const pool = await poolPromise;
@@ -30,13 +34,13 @@ app.post('https://ohyeah-4nlk.onrender.com/api/login', async (req, res) => {
         } else {
             res.json({ success: false, message: 'Nombre de usuario o contraseña incorrectos' });
         }
-    } catch (err) {p
+    } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
 
 // Ruta para manejar el registro de usuarios
-app.post('https://ohyeah-4nlk.onrender.com/api/register', async (req, res) => {
+app.post('/api/register', async (req, res) => {
     try {
         const { nombres, apellidos, fechaNacimiento, correo, username, password, image } = req.body;
 
@@ -62,7 +66,7 @@ app.post('https://ohyeah-4nlk.onrender.com/api/register', async (req, res) => {
 });
 
 // Ruta para obtener todas las publicaciones
-app.get('https://ohyeah-4nlk.onrender.com/api/publicaciones', async (req, res) => {
+app.get('/api/publicaciones', async (req, res) => {
     try {
         const pool = await poolPromise;
         const result = await pool.request().query(`
@@ -78,7 +82,7 @@ app.get('https://ohyeah-4nlk.onrender.com/api/publicaciones', async (req, res) =
 });
 
 // Ruta para crear una nueva publicación
-app.post('https://ohyeah-4nlk.onrender.com/api/publicaciones', async (req, res) => {
+app.post('/api/publicaciones', async (req, res) => {
     try {
         const { Id_Usuario, Titulo, Contenido, Id_Categoria } = req.body;
         const pool = await poolPromise;
@@ -103,7 +107,7 @@ app.post('https://ohyeah-4nlk.onrender.com/api/publicaciones', async (req, res) 
 });
 
 // Ruta para actualizar una publicación
-app.put('https://ohyeah-4nlk.onrender.com/api/publicaciones/:id', async (req, res) => {
+app.put('/api/publicaciones/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { Titulo, Contenido, Id_Categoria } = req.body;
@@ -127,7 +131,7 @@ app.put('https://ohyeah-4nlk.onrender.com/api/publicaciones/:id', async (req, re
 });
 
 // Ruta para eliminar una publicación
-app.delete('https://ohyeah-4nlk.onrender.com/api/publicaciones/:id', async (req, res) => {
+app.delete('/api/publicaciones/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const pool = await poolPromise;
@@ -146,7 +150,7 @@ app.delete('https://ohyeah-4nlk.onrender.com/api/publicaciones/:id', async (req,
 });
 
 // Ruta para actualizar el perfil del usuario
-app.put('https://ohyeah-4nlk.onrender.com/api/usuarios/:id', async (req, res) => {
+app.put('/api/usuarios/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { Nombres, Apellidos, Nacimiento, Correo } = req.body;
@@ -170,9 +174,8 @@ app.put('https://ohyeah-4nlk.onrender.com/api/usuarios/:id', async (req, res) =>
     }
 });
 
-
 // Ruta para obtener las publicaciones del usuario
-app.get('https://ohyeah-4nlk.onrender.com/api/publicaciones/usuario/:id', async (req, res) => {
+app.get('/api/publicaciones/usuario/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const pool = await poolPromise;
@@ -186,7 +189,7 @@ app.get('https://ohyeah-4nlk.onrender.com/api/publicaciones/usuario/:id', async 
 });
 
 // Ruta para buscar publicaciones con filtros
-app.get('https://ohyeah-4nlk.onrender.com/api/publicaciones/buscar', async (req, res) => {
+app.get('/api/publicaciones/buscar', async (req, res) => {
     try {
         const { termino, fechaInicio, fechaFin, categoria } = req.query;
         const pool = await poolPromise;
@@ -218,10 +221,6 @@ app.get('https://ohyeah-4nlk.onrender.com/api/publicaciones/buscar', async (req,
     }
 });
 
-
-
 app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`);
 });
-
-
