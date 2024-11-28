@@ -15,7 +15,7 @@ app.use(bodyParser.json({ limit: '50mb' })); // Aumentar el límite de tamaño d
 app.use(cors());
 
 // Ruta para manejar el inicio de sesión
-app.post('/api/login', async (req, res) => {
+app.post('https://ohyeah-4nlk.onrender.com/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         const pool = await poolPromise;
@@ -36,7 +36,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Ruta para manejar el registro de usuarios
-app.post('/api/register', async (req, res) => {
+app.post('https://ohyeah-4nlk.onrender.com/api/register', async (req, res) => {
     try {
         const { nombres, apellidos, fechaNacimiento, correo, username, password, image } = req.body;
 
@@ -62,7 +62,7 @@ app.post('/api/register', async (req, res) => {
 });
 
 // Ruta para obtener todas las publicaciones
-app.get('/api/publicaciones', async (req, res) => {
+app.get('https://ohyeah-4nlk.onrender.com/api/publicaciones', async (req, res) => {
     try {
         const pool = await poolPromise;
         const result = await pool.request().query(`
@@ -78,7 +78,7 @@ app.get('/api/publicaciones', async (req, res) => {
 });
 
 // Ruta para crear una nueva publicación
-app.post('/api/publicaciones', async (req, res) => {
+app.post('https://ohyeah-4nlk.onrender.com/api/publicaciones', async (req, res) => {
     try {
         const { Id_Usuario, Titulo, Contenido, Id_Categoria } = req.body;
         const pool = await poolPromise;
@@ -103,7 +103,7 @@ app.post('/api/publicaciones', async (req, res) => {
 });
 
 // Ruta para actualizar una publicación
-app.put('/api/publicaciones/:id', async (req, res) => {
+app.put('https://ohyeah-4nlk.onrender.com/api/publicaciones/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { Titulo, Contenido, Id_Categoria } = req.body;
@@ -127,7 +127,7 @@ app.put('/api/publicaciones/:id', async (req, res) => {
 });
 
 // Ruta para eliminar una publicación
-app.delete('/api/publicaciones/:id', async (req, res) => {
+app.delete('https://ohyeah-4nlk.onrender.com/api/publicaciones/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const pool = await poolPromise;
@@ -146,7 +146,7 @@ app.delete('/api/publicaciones/:id', async (req, res) => {
 });
 
 // Ruta para actualizar el perfil del usuario
-app.put('/api/usuarios/:id', async (req, res) => {
+app.put('https://ohyeah-4nlk.onrender.com/api/usuarios/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { Nombres, Apellidos, Nacimiento, Correo } = req.body;
@@ -172,7 +172,7 @@ app.put('/api/usuarios/:id', async (req, res) => {
 
 
 // Ruta para obtener las publicaciones del usuario
-app.get('/api/publicaciones/usuario/:id', async (req, res) => {
+app.get('https://ohyeah-4nlk.onrender.com/api/publicaciones/usuario/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const pool = await poolPromise;
@@ -186,7 +186,7 @@ app.get('/api/publicaciones/usuario/:id', async (req, res) => {
 });
 
 // Ruta para buscar publicaciones con filtros
-app.get('/api/publicaciones/buscar', async (req, res) => {
+app.get('https://ohyeah-4nlk.onrender.com/api/publicaciones/buscar', async (req, res) => {
     try {
         const { termino, fechaInicio, fechaFin, categoria } = req.query;
         const pool = await poolPromise;
